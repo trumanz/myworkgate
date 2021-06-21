@@ -16,6 +16,7 @@ steps:
   displayName: 'Build Docker Image'
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    docker run -d -p 8080:8080 myworkgate:latest
+    sleep 5
+    curl 127.0.0.1:8080/hello
+  displayName: 'Start Service'
