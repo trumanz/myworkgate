@@ -6,5 +6,5 @@
 Build with change apt mirror to huwawei:
 
 `
-docker  build ./ --build-arg  change_hw_mirror=true
+docker  build  -t myworkgate:lates  ./ --build-arg  changeaptmirror=true
 `
