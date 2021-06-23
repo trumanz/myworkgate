@@ -9,15 +9,28 @@ trigger:
 pool:
   vmImage: ubuntu-20.04
 
-steps:
-- script: |
-     mvn clean package
-     docker build -t myworkgate:latest ./
-  displayName: 'Build Docker Image'
+stages:
+- stage: Test
+  jobs:
+  - job: TestHello
+    steps:
+    - bash: |
+        mvn clean package
+        docker build -t myworkgate:latest ./
+      displayName: 'Build Docker Image'
+    - bash: |
+        docker run -d -p 8080:8080 myworkgate:latest
+        sleep 10
+        docker ps
+        curl --connect-timeout 20  -v 127.0.0.1:8080/hello
+      displayName: 'Hello Service'
+  - job: DockerCompose
+    steps:
+    - bash: |
+        mvn clean package
+        docker build -t myworkgate:latest ./
+      displayName: 'Build Docker Image'
+    - bash: |
+        cd docker-compose && docker-compose up -d
+      displayName: 'Docker-Compose up'
 
-- script: |
-    docker run -d -p 8080:8080 myworkgate:latest
-    sleep 10
-    docker ps 
-    curl --connect-timeout 20  -v 127.0.0.1:8080/hello
-  displayName: 'Start Service'
