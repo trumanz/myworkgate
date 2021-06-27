@@ -33,4 +33,10 @@ stages:
     - bash: |
         cd docker-compose && docker-compose up -d
       displayName: 'Docker-Compose up'
+  - job: UnitTest
+    steps:
+    - bash: |
+        mvn test
+      displayName: 'Unit Test'
+
 
