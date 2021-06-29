@@ -31,10 +31,8 @@ public class ProjectController {
     }
 
     @GetMapping("/projects")
-    List<Project> all(){
-        List<Project> projects = new LinkedList<Project>();
-        projects.add( dummyProject());
-        return projects;
+    List<Project>  all(){
+        return projectService.listAllProject();
     }
 
     @GetMapping("/project/{id}")
