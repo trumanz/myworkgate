@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -16,13 +17,19 @@ public class ProjectService implements  IProjectService{
     private ProjectRepository projectRepository;
 
     @Override
-    public Project createProject(Project project) {
+    public Project createOrUpdateProject(Project project) {
         return projectRepository.save(project);
     }
 
     @Override
-    public List<Project> listAllProject() {
+    public Project getProject(Long id) {
+        Optional<Project> project = projectRepository.findById(id);
+        if(project.isEmpty()) return null;
+        return project.get();
+    }
 
+    @Override
+    public List<Project> listAllProject() {
         List<Project> projects = new ArrayList<>();
         projectRepository.findAll().forEach(projects::add);
         return projects;

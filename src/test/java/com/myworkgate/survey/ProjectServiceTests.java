@@ -26,13 +26,13 @@ public class ProjectServiceTests {
     private ProjectService projectService;
 
     @Test
-    public void createProject_shouldReturnProject() {
+    public void createProject_andGetProject() {
         Project project = new Project();
         project.setName("TestProj");
 
         when(projectRepository.save(ArgumentMatchers.any(Project.class))).thenReturn(project);
 
-        Project proj_created = projectService.createProject(project);
+        Project proj_created = projectService.createOrUpdateProject(project);
 
         assertThat(proj_created.getName()).isSameAs(project.getName());
 

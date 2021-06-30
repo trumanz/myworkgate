@@ -2,17 +2,14 @@ package com.myworkgate.survey.controller;
 
 
 import com.myworkgate.survey.model.Project;
-import com.myworkgate.survey.repository.ProjectRepository;
 import com.myworkgate.survey.service.IProjectService;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedList;
 import java.util.List;
 
 
@@ -35,21 +32,38 @@ public class ProjectController {
         return projectService.listAllProject();
     }
 
-    @GetMapping("/project/{id}")
-    Project getProject(@PathVariable Long id) {
-        return dummyProject();
+    @GetMapping("/projects/{id}")
+    ResponseEntity<Project> getProject(@PathVariable Long id) {
+        Project project = projectService.getProject(id);
+        if(project == null){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
     @PostMapping("/projects")
     public ResponseEntity<Project> newProject(@RequestBody Project newProject) {
         try {
             log.warn("" + projectService);
-            Project proj =projectService.createProject(newProject);
+            Project proj =projectService.createOrUpdateProject(newProject);
             return new ResponseEntity<>(proj, HttpStatus.CREATED);
         } catch(Exception e) {
             log.error("" + e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PatchMapping("/projects/{id}")
+    public ResponseEntity<Project> updateProject(@PathVariable Long id,  @RequestBody Project project)
+    {
+        Project orignal_proj = projectService.getProject(id);
+        if(orignal_proj == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        BeanUtils.copyProperties(project, orignal_proj);
+        projectService.createOrUpdateProject(orignal_proj);
+        return new ResponseEntity<>(orignal_proj, HttpStatus.CREATED);
+
     }
 
 

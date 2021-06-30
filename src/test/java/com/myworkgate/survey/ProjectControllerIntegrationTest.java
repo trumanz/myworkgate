@@ -8,7 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,6 +33,13 @@ public class ProjectControllerIntegrationTest {
     @BeforeAll
     public static void init() {
         restTemplate = new RestTemplate();
+
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(5000);
+        requestFactory.setReadTimeout(5000);
+
+        restTemplate.setRequestFactory(requestFactory);
+
     }
 
     @BeforeEach
@@ -41,8 +50,7 @@ public class ProjectControllerIntegrationTest {
     @Test
     @Sql(statements = "INSERT INTO project (id, name) VALUES (1, 'x'), (2, 'y')",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    public void crud() {
-        log.warn(":" + restTemplate);
+    public void queryExistProject() {
         ResponseEntity<Project[]> response =
                 restTemplate.getForEntity(baseUrl.concat("/projects"), Project[].class);
         log.info("response: " + response);
@@ -54,9 +62,50 @@ public class ProjectControllerIntegrationTest {
                 ()->assertEquals(2,projs.length),
                 ()->assertEquals("x",projs[0].getName()),
                 ()->assertEquals("y",projs[1].getName())
-
         );
+    }
+
+    //C--R
+    @Test
+    public void create_Retrieve_Project() {
+        var proj = new Project();
+        proj.setName("Jan");
+        ResponseEntity<Project> response = restTemplate.postForEntity(
+                baseUrl.concat("/projects"), proj,Project.class);
+
+        assertEquals( HttpStatus.CREATED, response.getStatusCode());
+        assertEquals( "Jan", response.getBody().getName());
+
+        ResponseEntity<Project> response_get = restTemplate.getForEntity(
+                baseUrl.concat("/projects/{id}"), Project.class, response.getBody().getId());
+
+        assertEquals( HttpStatus.OK, response_get.getStatusCode());
+        assertEquals( "Jan", response_get.getBody().getName());
+        assertEquals( response.getBody().getId(), response_get.getBody().getId());
 
     }
+
+    //Update--Retrieve
+    @Test
+    @Sql(statements = "INSERT INTO project (id, name) VALUES (5, 'Java')",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void updateProject_Retrieve() {
+        var proj = new Project();
+        proj.setId(5L);
+        proj.setName("GoLang");
+
+        restTemplate.patchForObject( baseUrl.concat("/projects/{id}"),  proj,
+                 Project.class,5);
+
+        ResponseEntity<Project> response_get = restTemplate.getForEntity(
+                baseUrl.concat("/projects/{id}"), Project.class, 5);
+
+        assertEquals( HttpStatus.OK, response_get.getStatusCode());
+        assertEquals( "GoLang", response_get.getBody().getName());
+        assertEquals( 5L, response_get.getBody().getId());
+
+    }
+
+
 
 }
