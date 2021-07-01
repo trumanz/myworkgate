@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
@@ -103,6 +104,33 @@ public class ProjectControllerIntegrationTest {
         assertEquals( HttpStatus.OK, response_get.getStatusCode());
         assertEquals( "GoLang", response_get.getBody().getName());
         assertEquals( 5L, response_get.getBody().getId());
+
+    }
+
+    //DELETE
+    @Test
+    @Sql(statements = "INSERT INTO project (id, name) VALUES (6, 'C++')",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void deleteObject_ShouldRetrieveResponseNotFound() {
+        var proj = new Project();
+        proj.setId(5L);
+        proj.setName("GoLang");
+
+        restTemplate.delete( baseUrl.concat("/projects/{id}"),5);
+
+
+        HttpStatus status = HttpStatus.OK;
+        try {
+            ResponseEntity<Project> response_get = restTemplate.getForEntity(
+                    baseUrl.concat("/projects/{id}"), Project.class, 5);
+        } catch(HttpClientErrorException ex) {
+            status = ex.getStatusCode();
+            if (ex.getStatusCode() != HttpStatus.NOT_FOUND) {
+                throw ex;
+            }
+        }
+
+        assertEquals( HttpStatus.NOT_FOUND, status);
 
     }
 

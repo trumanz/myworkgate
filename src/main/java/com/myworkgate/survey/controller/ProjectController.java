@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @Slf4j
 @RestController
 public class ProjectController {
@@ -66,6 +65,13 @@ public class ProjectController {
 
     }
 
+    @DeleteMapping("/projects/{id}")
+    public ResponseEntity<Long> deleteProject(@PathVariable Long id)
+    {
+        projectService.getProject(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
+
+    }
 
 
 }

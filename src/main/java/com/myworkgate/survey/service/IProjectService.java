@@ -9,4 +9,5 @@ public interface IProjectService {
     Project getProject(Long id);
     List<Project> listAllProject();
 
+    void deleteProject(Long id);
 }
