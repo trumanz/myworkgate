@@ -10,12 +10,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,6 +45,11 @@ public class ProjectControllerIntegrationTest {
         requestFactory.setReadTimeout(5000);
 
         restTemplate.setRequestFactory(requestFactory);
+
+        List<ClientHttpRequestInterceptor> interceptorList = new ArrayList<>();
+        interceptorList.add(new LoggingRequestInterceptor());
+        restTemplate.setInterceptors(interceptorList);
+        restTemplate.setRequestFactory(new BufferingClientHttpRequestFactory(requestFactory));
 
     }
 
@@ -109,20 +119,20 @@ public class ProjectControllerIntegrationTest {
 
     //DELETE
     @Test
-    @Sql(statements = "INSERT INTO project (id, name) VALUES (6, 'C++')",
+    @Sql(statements = "INSERT INTO project (id, name) VALUES (7, 'C++')",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void deleteObject_ShouldRetrieveResponseNotFound() {
         var proj = new Project();
         proj.setId(5L);
         proj.setName("GoLang");
 
-        restTemplate.delete( baseUrl.concat("/projects/{id}"),5);
+        restTemplate.delete( baseUrl.concat("/projects/{id}"),7);
 
 
         HttpStatus status = HttpStatus.OK;
         try {
             ResponseEntity<Project> response_get = restTemplate.getForEntity(
-                    baseUrl.concat("/projects/{id}"), Project.class, 5);
+                    baseUrl.concat("/projects/{id}"), Project.class, 7);
         } catch(HttpClientErrorException ex) {
             status = ex.getStatusCode();
             if (ex.getStatusCode() != HttpStatus.NOT_FOUND) {
@@ -131,6 +141,7 @@ public class ProjectControllerIntegrationTest {
         }
 
         assertEquals( HttpStatus.NOT_FOUND, status);
+
 
     }
 
