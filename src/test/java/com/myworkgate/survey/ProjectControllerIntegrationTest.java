@@ -3,6 +3,7 @@ package com.myworkgate.survey;
 
 import com.myworkgate.survey.model.Project;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,6 +57,12 @@ public class ProjectControllerIntegrationTest {
     @BeforeEach
     public void stepUp() {
         baseUrl = baseUrl.concat(":").concat(port+"");
+    }
+
+    @AfterEach
+    @Sql(statements = "DELETE * from project")
+    public void cleanUp(){
+
     }
 
     @Test
@@ -141,7 +148,6 @@ public class ProjectControllerIntegrationTest {
         }
 
         assertEquals( HttpStatus.NOT_FOUND, status);
-
 
     }
 
