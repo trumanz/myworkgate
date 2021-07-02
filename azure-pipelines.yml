@@ -15,8 +15,7 @@ stages:
   - job: TestHello
     steps:
     - bash: |
-        mvn clean package 
-        docker build -t myworkgate:latest ./
+        ./docker-image-build.sh
       displayName: 'Build Docker Image'
     - bash: |
         docker run -d -p 8080:8080 myworkgate:latest
@@ -27,8 +26,7 @@ stages:
   - job: DockerCompose
     steps:
     - bash: |
-        mvn clean package
-        docker build -t myworkgate:latest ./
+        ./docker-image-build.sh
       displayName: 'Build Docker Image'
     - bash: |
         cd docker-compose && docker-compose up -d
