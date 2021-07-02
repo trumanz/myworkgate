@@ -44,7 +44,7 @@ public class ProjectController {
     public ResponseEntity<Project> newProject(@RequestBody Project newProject) {
         try {
             log.warn("" + projectService);
-            Project proj =projectService.createOrUpdateProject(newProject);
+            Project proj =projectService.createProject(newProject);
             return new ResponseEntity<>(proj, HttpStatus.CREATED);
         } catch(Exception e) {
             log.error("" + e);
