@@ -15,7 +15,7 @@ stages:
   - job: TestHello
     steps:
     - bash: |
-        mvn clean package
+        mvn clean package 
         docker build -t myworkgate:latest ./
       displayName: 'Build Docker Image'
     - bash: |
@@ -36,7 +36,7 @@ stages:
   - job: UnitTest
     steps:
     - bash: |
-        mvn test
+         cd survey-project &&  mvn test
       displayName: 'Unit Test'
 
 
