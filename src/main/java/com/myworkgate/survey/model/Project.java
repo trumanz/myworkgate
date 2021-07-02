@@ -21,6 +21,7 @@ public class Project {
     @Getter @Setter
     private String name;
 
+    @Getter @Setter
     @ManyToMany
     List<SurveyItemText> surveyItemTextList;
 

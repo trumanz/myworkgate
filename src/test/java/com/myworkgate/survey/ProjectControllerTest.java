@@ -39,7 +39,7 @@ public class ProjectControllerTest {
         project.setId(1L);
         project.setName("testProj");
 
-        when(projectService.createOrUpdateProject(any(Project.class))).thenReturn(project);
+        when(projectService.createProject(any(Project.class))).thenReturn(project);
 
         mockMvc.perform(post("/projects")
                    .contentType(MediaType.APPLICATION_JSON)
